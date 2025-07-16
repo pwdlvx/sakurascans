@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
-    "build": "SKIP_LINT=true next build",
+    "build": "next build",
     "build:netlify": "SKIP_LINT=true ESLINT_NO_DEV_ERRORS=true next build",
     "start": "next start",
     "lint": "echo 'Linting disabled'",
