@@ -7,7 +7,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-
+  output: 'export',
+  distDir: 'out',
+  trailingSlash: true,
   allowedDevOrigins: ["*.preview.same-app.com"],
   images: {
     unoptimized: true,
