@@ -22,3 +22,6 @@
 
 [dev]
   framework = "next"
+
+[build.processing]
+  skip_processing = false
