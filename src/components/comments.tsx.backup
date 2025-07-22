@@ -1,0 +1,497 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/auth-context';
+import { MessageCircle, Heart, Reply, MoreVertical, Flag, Trash2, Edit, Crown } from 'lucide-react';
+import Image from 'next/image';
+
+interface Comment {
+  id: string;
+  userId: string;
+  username: string;
+  avatar?: string;
+  role: 'user' | 'admin';
+  content: string;
+  likes: number;
+  isLiked: boolean;
+  replies: Comment[];
+  createdAt: Date;
+  editedAt?: Date;
+  isEditing?: boolean;
+}
+
+interface CommentsProps {
+  entityId: string; // Comic ID or Chapter ID
+  entityType: 'comic' | 'chapter';
+  totalComments?: number;
+}
+
+export function CommentsSection({ entityId, entityType, totalComments = 0 }: CommentsProps) {
+  const { user } = useAuth();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'popular'>('newest');
+
+  useEffect(() => {
+    loadComments();
+  }, [entityId, sortBy]);
+
+  const loadComments = async () => {
+    setIsLoading(true);
+    // Mock data - in real app, fetch from API
+    const mockComments: Comment[] = [
+      {
+        id: '1',
+        userId: 'user1',
+        username: 'ComicFan123',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ComicFan123',
+        role: 'user',
+        content: 'This chapter was absolutely amazing! The character development is incredible and the artwork is stunning. Can\'t wait for the next one!',
+        likes: 15,
+        isLiked: false,
+        replies: [
+          {
+            id: '2',
+            userId: 'user2',
+            username: 'MangaLover',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MangaLover',
+            role: 'user',
+            content: 'I totally agree! The fight scenes were epic.',
+            likes: 3,
+            isLiked: true,
+            replies: [],
+            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+          }
+        ],
+        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+      },
+      {
+        id: '3',
+        userId: 'admin1',
+        username: 'SakuraAdmin',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SakuraAdmin',
+        role: 'admin',
+        content: 'Thanks for all the positive feedback! We\'re working hard to bring you the best reading experience. Stay tuned for more updates!',
+        likes: 42,
+        isLiked: false,
+        replies: [],
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000)
+      },
+      {
+        id: '4',
+        userId: 'user3',
+        username: 'ReadingAddict',
+        role: 'user',
+        content: 'Plot twist was unexpected! 😱 This series keeps getting better.',
+        likes: 8,
+        isLiked: false,
+        replies: [],
+        createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000)
+      }
+    ];
+
+    // Sort comments
+    const sortedComments = sortComments(mockComments, sortBy);
+    setComments(sortedComments);
+    setIsLoading(false);
+  };
+
+  const sortComments = (comments: Comment[], sortType: 'newest' | 'oldest' | 'popular'): Comment[] => {
+    return [...comments].sort((a, b) => {
+      switch (sortType) {
+        case 'newest':
+          return b.createdAt.getTime() - a.createdAt.getTime();
+        case 'oldest':
+          return a.createdAt.getTime() - b.createdAt.getTime();
+        case 'popular':
+          return b.likes - a.likes;
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newComment.trim()) return;
+
+    const comment: Comment = {
+      id: Date.now().toString(),
+      userId: user.id,
+      username: user.username,
+      avatar: user.avatar,
+      role: user.role,
+      content: newComment,
+      likes: 0,
+      isLiked: false,
+      replies: [],
+      createdAt: new Date()
+    };
+
+    setComments(prev => [comment, ...prev]);
+    setNewComment('');
+  };
+
+  const handleLikeComment = (commentId: string, isReply: boolean = false, parentId?: string) => {
+    setComments(prev =>
+      prev.map(comment => {
+        if (!isReply && comment.id === commentId) {
+          return {
+            ...comment,
+            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
+            isLiked: !comment.isLiked
+          };
+        }
+        if (isReply && comment.id === parentId) {
+          return {
+            ...comment,
+            replies: comment.replies.map(reply =>
+              reply.id === commentId
+                ? {
+                    ...reply,
+                    likes: reply.isLiked ? reply.likes - 1 : reply.likes + 1,
+                    isLiked: !reply.isLiked
+                  }
+                : reply
+            )
+          };
+        }
+        return comment;
+      })
+    );
+  };
+
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Comments Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="text-sakura-primary" size={20} />
+          <h3 className="title-font text-lg">
+            Comments ({comments.length + comments.reduce((acc, c) => acc + c.replies.length, 0)})
+          </h3>
+        </div>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as any)}
+          className="search-input px-3 py-1 rounded text-sm"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="popular">Most Liked</option>
+        </select>
+      </div>
+
+      {/* Comment Form */}
+      {user ? (
+        <form onSubmit={handleSubmitComment} className="asura-card p-4 rounded-lg">
+          <div className="flex gap-3">
+            {user.avatar ? (
+              <Image
+                src={user.avatar}
+                alt={user.username}
+                width={40}
+                height={40}
+                className="rounded-full flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-sakura-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-sm font-medium">
+                  {user.username[0].toUpperCase()}
+                </span>
+              </div>
+            )}
+            <div className="flex-1">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder={`Share your thoughts about this ${entityType}...`}
+                className="search-input w-full px-3 py-2 rounded-lg resize-none h-20"
+                maxLength={500}
+              />
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs text-muted-foreground">
+                  {newComment.length}/500
+                </span>
+                <button
+                  type="submit"
+                  disabled={!newComment.trim()}
+                  className="sakura-button text-white px-4 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Post Comment
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <div className="asura-card p-4 rounded-lg text-center">
+          <MessageCircle className="mx-auto text-muted-foreground mb-2" size={24} />
+          <p className="text-muted-foreground">
+            Please login to join the discussion
+          </p>
+        </div>
+      )}
+
+      {/* Comments List */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="asura-card p-4 rounded-lg animate-pulse">
+              <div className="flex gap-3">
+                <div className="w-10 h-10 bg-muted rounded-full"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted rounded w-1/4"></div>
+                  <div className="h-3 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : comments.length === 0 ? (
+        <div className="asura-card p-8 rounded-lg text-center">
+          <MessageCircle className="mx-auto text-muted-foreground mb-3" size={32} />
+          <h4 className="font-medium mb-1">No comments yet</h4>
+          <p className="text-muted-foreground text-sm">
+            Be the first to share your thoughts!
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {comments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              onLike={(id) => handleLikeComment(id)}
+              onReplyLike={(replyId) => handleLikeComment(replyId, true, comment.id)}
+              currentUser={user}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CommentItem({
+  comment,
+  onLike,
+  onReplyLike,
+  currentUser
+}: {
+  comment: Comment;
+  onLike: (id: string) => void;
+  onReplyLike: (id: string) => void;
+  currentUser: any;
+}) {
+  const [showReplies, setShowReplies] = useState(true);
+  const [replyText, setReplyText] = useState('');
+  const [showReplyForm, setShowReplyForm] = useState(false);
+
+  return (
+    <div className="asura-card p-4 rounded-lg">
+      <div className="flex gap-3">
+        {comment.avatar ? (
+          <Image
+            src={comment.avatar}
+            alt={comment.username}
+            width={40}
+            height={40}
+            className="rounded-full flex-shrink-0"
+          />
+        ) : (
+          <div className="w-10 h-10 bg-sakura-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-sm font-medium">
+              {comment.username[0].toUpperCase()}
+            </span>
+          </div>
+        )}
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-sm">{comment.username}</span>
+            {comment.role === 'admin' && (
+              <Crown className="text-sakura-accent" size={12} />
+            )}
+            <span className="text-xs text-muted-foreground">
+              {formatTimeAgo(comment.createdAt)}
+            </span>
+            {comment.editedAt && (
+              <span className="text-xs text-muted-foreground">(edited)</span>
+            )}
+          </div>
+
+          <p className="text-sm leading-relaxed mb-3 body-font">
+            {comment.content}
+          </p>
+
+          <div className="flex items-center gap-4 text-xs">
+            <button
+              onClick={() => onLike(comment.id)}
+              className={`flex items-center gap-1 transition-colors ${
+                comment.isLiked
+                  ? 'text-red-500'
+                  : 'text-muted-foreground hover:text-red-500'
+              }`}
+            >
+              <Heart size={14} className={comment.isLiked ? 'fill-current' : ''} />
+              <span>{comment.likes}</span>
+            </button>
+
+            <button
+              onClick={() => setShowReplyForm(!showReplyForm)}
+              className="flex items-center gap-1 text-muted-foreground hover:text-sakura-primary transition-colors"
+            >
+              <Reply size={14} />
+              <span>Reply</span>
+            </button>
+
+            {currentUser && (currentUser.id === comment.userId || currentUser.role === 'admin') && (
+              <div className="flex items-center gap-2">
+                <button className="text-muted-foreground hover:text-sakura-primary transition-colors">
+                  <Edit size={14} />
+                </button>
+                <button className="text-muted-foreground hover:text-red-500 transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )}
+
+            <button className="text-muted-foreground hover:text-sakura-primary transition-colors">
+              <Flag size={14} />
+            </button>
+          </div>
+
+          {/* Reply Form */}
+          {showReplyForm && currentUser && (
+            <div className="mt-3 pl-4 border-l-2 border-sakura-border">
+              <div className="flex gap-2">
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Write a reply..."
+                  className="search-input flex-1 px-3 py-2 rounded text-sm resize-none h-16"
+                  maxLength={300}
+                />
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => {
+                      if (replyText.trim()) {
+                        // Handle reply submission
+                        setReplyText('');
+                        setShowReplyForm(false);
+                      }
+                    }}
+                    disabled={!replyText.trim()}
+                    className="sakura-button text-white px-3 py-1 rounded text-xs disabled:opacity-50"
+                  >
+                    Reply
+                  </button>
+                  <button
+                    onClick={() => setShowReplyForm(false)}
+                    className="px-3 py-1 border border-sakura-border rounded text-xs hover:bg-secondary transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Replies */}
+          {comment.replies.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowReplies(!showReplies)}
+                className="text-xs text-sakura-primary hover:text-sakura-accent transition-colors mb-3"
+              >
+                {showReplies ? 'Hide' : 'Show'} {comment.replies.length} repl{comment.replies.length === 1 ? 'y' : 'ies'}
+              </button>
+
+              {showReplies && (
+                <div className="space-y-3 pl-4 border-l-2 border-sakura-border">
+                  {comment.replies.map((reply) => (
+                    <div key={reply.id} className="flex gap-2">
+                      {reply.avatar ? (
+                        <Image
+                          src={reply.avatar}
+                          alt={reply.username}
+                          width={32}
+                          height={32}
+                          className="rounded-full flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-sakura-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-xs font-medium">
+                            {reply.username[0].toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-xs">{reply.username}</span>
+                          {reply.role === 'admin' && (
+                            <Crown className="text-sakura-accent" size={10} />
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {formatTimeAgo(reply.createdAt)}
+                          </span>
+                        </div>
+
+                        <p className="text-xs leading-relaxed mb-2 body-font">
+                          {reply.content}
+                        </p>
+
+                        <div className="flex items-center gap-3 text-xs">
+                          <button
+                            onClick={() => onReplyLike(reply.id)}
+                            className={`flex items-center gap-1 transition-colors ${
+                              reply.isLiked
+                                ? 'text-red-500'
+                                : 'text-muted-foreground hover:text-red-500'
+                            }`}
+                          >
+                            <Heart size={12} className={reply.isLiked ? 'fill-current' : ''} />
+                            <span>{reply.likes}</span>
+                          </button>
+
+                          <button className="text-muted-foreground hover:text-sakura-primary transition-colors">
+                            <Reply size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatTimeAgo(date: Date) {
+  const now = new Date();
+  const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+  if (diffInHours < 1) return 'Just now';
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
+  return date.toLocaleDateString();
+}
