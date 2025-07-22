@@ -1,0 +1,501 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 15 23% 6%;
+    --foreground: 210 40% 98%;
+    --card: 15 25% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 15 25% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 335 85% 65%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 15 25% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 15 25% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 335 85% 65%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 15 25% 15%;
+    --input: 15 25% 12%;
+    --ring: 335 85% 65%;
+    --radius: 0.5rem;
+
+    /* Refined Sakura theme colors */
+    --sakura-primary: 335 85% 65%;
+    --sakura-secondary: 340 80% 60%;
+    --sakura-accent: 330 90% 70%;
+    --sakura-muted: 330 25% 20%;
+    --sakura-light: 340 100% 95%;
+    --sakura-dark: 15 30% 5%;
+    --sakura-border: 15 25% 18%;
+  }
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  /* Better mobile rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* 90% zoom effect */
+  zoom: 0.9;
+  -moz-transform: scale(0.9);
+  -moz-transform-origin: 0 0;
+  -webkit-transform: scale(0.9);
+  -webkit-transform-origin: 0 0;
+  transform: scale(0.9);
+  transform-origin: 0 0;
+}
+
+/* Custom thin scrollbar for entire site */
+:root {
+  --scrollbar-opacity: 1;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--sakura-primary)) transparent;
+  /* 90% zoom effect - font-size: 16px * 0.9 = 14.4px */
+  font-size: 14.4px;
+}
+
+body {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--sakura-primary)) transparent;
+}
+
+/* Chat-style scrollbar */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 2px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--sakura-primary) / 0.6);
+  border-radius: 2px;
+  opacity: var(--scrollbar-opacity);
+  transition: all 0.2s ease;
+  min-height: 20px;
+  max-height: 60px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--sakura-primary) / 0.8);
+  opacity: 1 !important;
+}
+
+/* Firefox scrollbar */
+html, body, * {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--sakura-primary) / 0.6) transparent;
+}
+
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Typography matching AsuraScans */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.title-font {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.body-font {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--sakura-primary));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--sakura-secondary));
+}
+
+/* Hide scrollbars for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .scrollbar-hide {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Refined gradient backgrounds */
+.sakura-gradient {
+  background: linear-gradient(135deg,
+    hsl(var(--sakura-primary) / 0.1) 0%,
+    hsl(var(--sakura-secondary) / 0.05) 50%,
+    transparent 100%);
+  border: 1px solid hsl(var(--sakura-border));
+}
+
+.sakura-border {
+  border: 1px solid hsl(var(--sakura-border));
+}
+
+/* Subtle glow effects */
+.sakura-glow {
+  box-shadow: 0 0 20px hsl(var(--sakura-primary) / 0.2);
+}
+
+.sakura-glow-subtle {
+  box-shadow: 0 1px 8px hsl(var(--sakura-primary) / 0.1);
+}
+
+/* Star rating styles */
+.star-filled {
+  color: hsl(var(--sakura-accent));
+}
+
+.star-empty {
+  color: hsl(var(--muted-foreground));
+}
+
+/* AsuraScans-style hover effects */
+.sakura-hover {
+  transition: all 0.15s ease-out;
+  border: 1px solid hsl(var(--border));
+}
+
+.sakura-hover:hover {
+  background: hsl(var(--card));
+  border-color: hsl(var(--sakura-primary) / 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--sakura-primary) / 0.15);
+}
+
+/* Button styling */
+.sakura-button {
+  background: linear-gradient(135deg,
+    hsl(var(--sakura-primary)) 0%,
+    hsl(var(--sakura-secondary)) 100%);
+  transition: all 0.15s ease-out;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.sakura-button:hover {
+  background: linear-gradient(135deg,
+    hsl(var(--sakura-secondary)) 0%,
+    hsl(var(--sakura-primary)) 100%);
+  box-shadow: 0 2px 8px hsl(var(--sakura-primary) / 0.3);
+  transform: translateY(-1px);
+}
+
+/* Card styling matching AsuraScans */
+.sakura-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+}
+
+.asura-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  transition: all 0.15s ease-out;
+}
+
+.asura-card:hover {
+  border-color: hsl(var(--sakura-primary) / 0.3);
+  box-shadow: 0 2px 8px hsl(var(--sakura-primary) / 0.1);
+}
+
+/* Text styles */
+.sakura-text-primary {
+  color: hsl(var(--sakura-primary));
+}
+
+.sakura-text-accent {
+  color: hsl(var(--sakura-accent));
+}
+
+/* Comic card styling */
+.comic-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  transition: all 0.15s ease-out;
+  overflow: hidden;
+}
+
+.comic-card:hover {
+  border-color: hsl(var(--sakura-primary) / 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px hsl(var(--sakura-primary) / 0.15);
+}
+
+/* Tags styling */
+.genre-tag {
+  background: hsl(var(--sakura-muted));
+  border: 1px solid hsl(var(--sakura-border));
+  color: hsl(var(--sakura-light));
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  letter-spacing: -0.01em;
+}
+
+/* Header styling */
+.header-blur {
+  backdrop-filter: blur(12px);
+  background: hsl(var(--background) / 0.8);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Search input styling */
+.search-input {
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  transition: all 0.15s ease-out;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: hsl(var(--sakura-primary));
+  box-shadow: 0 0 0 1px hsl(var(--sakura-primary) / 0.2);
+}
+
+/* Rating display */
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Chapter link styling */
+.chapter-link {
+  color: #6b7280;
+  transition: color 0.15s ease-out;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.chapter-link:hover {
+  color: hsl(var(--sakura-accent));
+}
+
+/* Trending section styling */
+.trending-section {
+  text-align: center;
+  padding: 1.5rem 0;
+  background: linear-gradient(135deg,
+    hsl(var(--sakura-primary) / 0.05) 0%,
+    transparent 100%);
+  border-radius: 8px;
+  border: 1px solid hsl(var(--sakura-border));
+}
+
+.trending-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: hsl(var(--sakura-primary));
+  letter-spacing: -0.02em;
+}
+
+/* Popular section styling */
+.popular-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .popular-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Comic info styling */
+.comic-info {
+  padding: 0.75rem;
+}
+
+.comic-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.01em;
+}
+
+.comic-chapter {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Navigation styling */
+.nav-link {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease-out;
+}
+
+/* Logo styling */
+.logo-text {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Better touch targets for mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mobile carousel optimization */
+  .comic-card {
+    min-height: 280px;
+  }
+
+  /* Improved mobile spacing */
+  .sakura-gradient {
+    padding: 1.5rem;
+  }
+
+  .trending-section {
+    padding: 1rem 0;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-appearance: none) {
+  input[type="text"], input[type="email"], input[type="password"], textarea {
+    -webkit-appearance: none;
+    border-radius: 8px;
+  }
+}
+
+/* Snap scroll for mobile carousel */
+@media (max-width: 768px) {
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  /* Better mobile scrolling */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Text truncation utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* User menu z-index fix - ensure it's always on top */
+[data-user-menu] {
+  z-index: 999999 !important;
+  position: relative !important;
+}
+
+[data-user-menu-dropdown] {
+  z-index: 999999 !important;
+  position: absolute !important;
+  pointer-events: auto !important;
+}
